@@ -12,7 +12,7 @@ export default {
     extend: {
       colors: {
         color: {
-          1: "#4e8d56",
+          1: "#7b9f80",
           2: "#FFC876",
           3: "#FF776F",
           4: "#7ADB78",
@@ -80,6 +80,15 @@ export default {
         "benefit-card-4": "url(assets/benefits/card-4.svg)",
         "benefit-card-5": "url(assets/benefits/card-5.svg)",
         "benefit-card-6": "url(assets/benefits/card-6.svg)",
+      },
+      keyframes: {
+        gradient: {
+          "0%": { backgroundPosition: "0% 50%" },
+          "100%": { backgroundPosition: "100% 50%" },
+        },
+      },
+      animation: {
+        gradient: "gradient 4s linear infinite",
       },
     },
   },

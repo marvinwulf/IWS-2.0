@@ -86,3 +86,17 @@
 .-rotate-360 {
   @apply rotate-[-360deg];
 }
+
+.gradient-text {
+  background: linear-gradient(to right,
+      #496a4d,
+      #7b9f80,
+      #496a4d,
+      #7b9f80);
+  background-size: 300% 300%;
+  background-clip: text;
+}
+
+.fade-2s {
+  transition: opacity 2000ms;
+}
