@@ -8,7 +8,7 @@ const Header = () => {
   const pathname = useLocation();
 
   return (
-    <div className="fixed top-0 left-0 w-full z-50 bg-n-8/80 backdrop-blur-sm border-b border-n-6">
+    <div className="fixed top-0 left-0 w-full z-[48] bg-n-8/80 backdrop-blur-sm border-b border-n-6">
       <div className="flex justify-between items-center px-5 lg:px-7.5 xl:px-12 max-lg:py-3">
         <div className="flex gap-6">
           <a className="flex items-center" href="#hero">

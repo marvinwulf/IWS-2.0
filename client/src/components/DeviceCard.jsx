@@ -1,4 +1,3 @@
-import { Tooltip } from "@material-tailwind/react";
 import Icon from "@mdi/react";
 
 import {
@@ -15,16 +14,14 @@ import {
   mdiBatteryRemoveOutline,
 } from "@mdi/js";
 
-const DeviceCard = (item, onClick) => {
-  console.log(item);
+const DeviceCard = ({ device, onClick }) => {
   const getWlIndicatorColors = (tankLevel, barIndex) => {
-    console.log(tankLevel, barIndex);
     const colors = {
       0: ["bg-red-600 blink2", "bg-amber-500", "bg-green-500"],
-      1: ["bg-n-5", "bg-amber-500", "bg-green-500"],
-      2: ["bg-n-5", "bg-n-5", "bg-green-500"],
+      1: ["bg-n-6", "bg-amber-500", "bg-green-500"],
+      2: ["bg-n-6", "bg-n-6", "bg-green-500"],
     };
-    return colors[barIndex][tankLevel];
+    return colors[barIndex][tankLevel] || "bg-gray-500";
   };
 
   const getBatteryIcon = (batLevel, type) => {
@@ -75,25 +72,25 @@ const DeviceCard = (item, onClick) => {
       <div className="border-b border-n-6 bg-n-7 h-[48px]">
         <div className="relative flex items-center px-4 py-3 gap-3 -mb-0.5">
           <div
-            className={`aspect-square h-[8px] rounded-lg ${item.device.isActive === 1 ? "bg-green-400" : "bg-red-500"}`}
+            className={`aspect-square h-[8px] rounded-lg ${device.isActive === 1 ? "bg-green-400" : "bg-red-500"}`}
           ></div>
           <div
             className={`absolute left-3 aspect-square h-[16px] rounded-lg ${
-              item.device.isActive === 1 ? "bg-green-400/20" : "bg-red-500/20"
+              device.isActive === 1 ? "bg-green-400/20" : "bg-red-500/20"
             }`}
           ></div>
           <p
             className={`whitespace-nowrap overflow-x-clip overflow-ellipsis w-full pr-12 ${
-              item.device.isActive === 1 ? "text-n-1" : "text-n-10"
+              device.isActive === 1 ? "text-n-1" : "text-n-10"
             }`}
-            title={item.device.name}
+            title={device.name}
           >
-            {item.device.name}
+            {device.name}
           </p>
 
           <Icon
-            path={getBatteryIcon(item.device.batLevel, "icon")}
-            className={`absolute right-3 ${getBatteryIcon(item.device.batLevel, "class")}`}
+            path={getBatteryIcon(device.batLevel, "icon")}
+            className={`absolute right-3 ${getBatteryIcon(device.batLevel, "class")}`}
             size={1}
             rotate={90}
           ></Icon>
@@ -101,13 +98,9 @@ const DeviceCard = (item, onClick) => {
       </div>
 
       <div className="flex my-4 mx-4 gap-0.5 h-2">
-        <div
-          className={`hover:opacity-80 tr w-[33%] rounded-l-md ${getWlIndicatorColors(item.device.tankLevel, 0)}`}
-        ></div>
-        <div className={`hover:opacity-80 tr w-[33%] ${getWlIndicatorColors(item.device.tankLevel, 1)}`}></div>
-        <div
-          className={`hover:opacity-80 tr w-[33%] rounded-r-md ${getWlIndicatorColors(item.device.tankLevel, 2)}`}
-        ></div>
+        <div className={`hover:opacity-80 tr w-[33%] rounded-l-md ${getWlIndicatorColors(device.tankLevel, 0)}`}></div>
+        <div className={`hover:opacity-80 tr w-[33%] ${getWlIndicatorColors(device.tankLevel, 1)}`}></div>
+        <div className={`hover:opacity-80 tr w-[33%] rounded-r-md ${getWlIndicatorColors(device.tankLevel, 2)}`}></div>
       </div>
     </div>
   );

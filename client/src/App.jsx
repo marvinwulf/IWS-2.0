@@ -4,8 +4,6 @@ import Hero from "./components/Hero";
 import Dashboard from "./components/Dashboard";
 
 const App = () => {
-  
-
   return (
     <>
       <div className="overflow-hidden">
