@@ -66,21 +66,24 @@ const DeviceCard = ({ device, onClick }) => {
 
   return (
     <div
-      className="w-44 lg:w-56 flex-col border border-n-6 rounded-md overflow-hidden cursor-pointer shadow-lg hover:scale-105 tr"
+      className="w-38 lg:w-56 flex-col border border-n-6 rounded-md overflow-hidden cursor-pointer shadow-lg hover:scale-105 tr"
       onClick={onClick}
     >
       <div className="border-b border-n-6 bg-n-7 h-[48px]">
-        <div className="relative flex items-center px-4 py-3 gap-3 -mb-0.5">
+        <div className="relative flex items-center h-full pl-3 lg:px-4 py-3 gap-3 -mb-0.5">
           <div
-            className={`aspect-square h-[8px] rounded-lg ${device.isActive === 1 ? "bg-green-400" : "bg-red-500"}`}
+            className={`top-0 aspect-square h-[6px] lg:h-[8px] rounded-lg ${
+              device.isActive === 1 ? "bg-green-400" : "bg-red-500"
+            }`}
           ></div>
           <div
-            className={`absolute left-3 aspect-square h-[16px] rounded-lg ${
+            className={`absolute left-[9px] lg:left-3 aspect-square h-[12px] lg:h-[16px] rounded-lg ${
               device.isActive === 1 ? "bg-green-400/20" : "bg-red-500/20"
             }`}
           ></div>
+
           <p
-            className={`whitespace-nowrap overflow-x-clip overflow-ellipsis w-full pr-12 ${
+            className={`whitespace-nowrap overflow-x-clip overflow-ellipsis w-full max-lg:text-sm lg:-mb-0.25 pr-6 lg:pr-12 ${
               device.isActive === 1 ? "text-n-1" : "text-n-10"
             }`}
             title={device.name}
@@ -88,16 +91,17 @@ const DeviceCard = ({ device, onClick }) => {
             {device.name}
           </p>
 
-          <Icon
-            path={getBatteryIcon(device.batLevel, "icon")}
-            className={`absolute right-3 ${getBatteryIcon(device.batLevel, "class")}`}
-            size={1}
-            rotate={90}
-          ></Icon>
+          <div className="absolute -right-0.5 lg:right-0 -bottom-[10px] lg:-bottom-[7.5px]">
+            <Icon
+              path={getBatteryIcon(device.batLevel, "icon")}
+              className={`h-5 lg:h-6 absolute right-3 ${getBatteryIcon(device.batLevel, "class")}`}
+              rotate={90}
+            ></Icon>
+          </div>
         </div>
       </div>
 
-      <div className="flex my-4 mx-4 gap-0.5 h-2">
+      <div className="flex my-[15px] mx-3 lg:mx-4 gap-0.5 h-2 lg:pr-8 mr-10">
         <div className={`hover:opacity-80 tr w-[33%] rounded-l-md ${getWlIndicatorColors(device.tankLevel, 0)}`}></div>
         <div className={`hover:opacity-80 tr w-[33%] ${getWlIndicatorColors(device.tankLevel, 1)}`}></div>
         <div className={`hover:opacity-80 tr w-[33%] rounded-r-md ${getWlIndicatorColors(device.tankLevel, 2)}`}></div>

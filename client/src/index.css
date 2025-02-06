@@ -151,7 +151,7 @@
 
 .gridcontainer {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 174px);
+  grid-template-columns: repeat(auto-fill, 166px);
   grid-auto-rows: 88px;
   grid-gap: 20px;
   justify-content: center;

@@ -77,52 +77,46 @@ const Dashboard = () => {
     isOffline: (device) => device.isActive === 0 && device.batLevel > 5,
   };
 
+  const sectionTitles = {
+    needsAttention: { singular: "Warnung", plural: "Warnungen" },
+    isOnline: { singular: "Gerät online", plural: "Geräte online" },
+    isOffline: { singular: "Gerät offline", plural: "Geräte offline" },
+  };
+
+  const getDeviceCountText = (key, count) => {
+    const title = sectionTitles[key] || { singular: "Gerät", plural: "Geräte" };
+    return count === 1 ? title.singular : title.plural;
+  };
+
   // Render category section if devices fit into the different categories and section is visible
   const renderSection = (filterFn, key, isLast) => {
     const filteredDevices = deviceList.filter(filterFn);
     if (!filteredDevices.length) return null;
 
     const isCollapsed = collapsedSections[key];
-
-    const deviceCountText = filteredDevices.length === 1 ? "Gerät" : "Geräte";
-
-    let title;
-    switch (key) {
-      case "needsAttention":
-        if (filteredDevices.length === 1) {
-          title = ", das Aufmerksamkeit benötigt";
-        } else {
-          title = ", die Aufmerksamkeit benötigen";
-        }
-        break;
-      case "isOnline":
-        title = " online";
-        break;
-      case "isOffline":
-        title = " offline";
-        break;
-    }
+    const deviceCountText = getDeviceCountText(key, filteredDevices.length);
 
     return (
-      <div className={`${!isLast && !isCollapsed ? "mb-5" : ""}`}>
-        <div className="relative top-[26px] left-[52px] flex items-center">
+      <div className={!isLast && !isCollapsed ? "mb-5" : ""}>
+        <div className="relative top-[26px] flex items-center mr-12 ml-6">
           <Icon
             size={1}
             rotate={isCollapsed ? 180 : 0}
             path={mdiChevronDown}
-            className="absolute left-2 -top-0.5 text-n-9 cursor-pointer hover:bg-n-6 rounded-md"
+            className="absolute left-2 -top-0.5 text-n-9 cursor-pointer hover:bg-n-6 rounded-md z-2"
             onClick={() => toggleSection(key)}
           />
-          <span className="text-n-9 font-300 bg-[#0e0c15] text-sm pl-9 pr-2 select-none">
-            {filteredDevices.length} {deviceCountText} {title}
+          <span className="relative text-n-9 font-300 bg-[#0e0c15] text-sm pl-9 pr-2 select-none z-1">
+            {filteredDevices.length} {deviceCountText}
           </span>
+          <div className="absolute bg-n-6 h-0.25 w-full" />
         </div>
 
-        <div className="mx-8 pt-10 mt-4 border-t border-n-5">
+        <div className="pt-10 mt-4 mx-4">
           {!isCollapsed && (
             <div className="gridcontainer select-none">
-              {filteredDevices.map((device, index) => (
-                <DeviceCard key={index} device={device} onClick={() => openDeviceMenuHandler(device.UID)} />
+              {filteredDevices.map((device) => (
+                <DeviceCard key={device.UID} device={device} onClick={() => openDeviceMenuHandler(device.UID)} />
               ))}
             </div>
           )}
@@ -137,6 +131,7 @@ const Dashboard = () => {
 
   // Handling of the device menu, loading the clicked card data into selectedDeviceData
   const openDeviceMenuHandler = (UID) => {
+    getDevices();
     setOpenDeviceMenu(true);
     const device = deviceList.find((device) => device.UID === UID);
     if (device) {
@@ -223,7 +218,7 @@ const Dashboard = () => {
             />
 
             <div
-              className={`fixed top-20 left-0 h-0.25 z-50 bg-blue-700 transition-all duration-200 blink3 ${
+              className={`fixed top-16 lg:top-20 left-0 h-0.25 z-50 bg-blue-700 transition-all duration-200 blink3 ${
                 isProgressBarVisible ? "" : "opacity-0"
               }`}
               style={{
@@ -287,8 +282,8 @@ const Dashboard = () => {
               ))}
 
               {/* Main Alert (on top) */}
-              <div className="relative flex items-center px-4 py-3 w-[27vw] h-14 bg-n-11 border border-n-6 rounded-lg shadow-xl">
-                <span className="text-sm">{alert.message}</span>
+              <div className="relative flex items-center px-4 py-3 min-w-[320px] w-[27vw] h-14 bg-n-11 border border-n-6 rounded-lg shadow-xl">
+                <span className="text-sm pr-6">{alert.message}</span>
 
                 {alert.count > 1 && (
                   <span className="absolute -top-2 -right-2 flex items-center justify-center w-6 h-6 bg-red-700 text-white text-xs font-bold rounded-full shadow-md">
