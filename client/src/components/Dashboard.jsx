@@ -29,6 +29,9 @@ const Dashboard = () => {
   const [selectedDeviceData, setSelectedDeviceData] = useState(null);
   const [alerts, setAlerts] = useState([]);
 
+  const [progress, setProgress] = useState(0);
+  const [isProgressBarVisible, setProgressBarVisible] = useState(false);
+
   // Fetching devices from API and loading into deviceList
   const getDevices = async () => {
     try {
@@ -36,6 +39,7 @@ const Dashboard = () => {
       setDevices(data.devices || []);
       console.log("%c[API] Fetched devices array:", "color: #00ff99", data.devices);
       setLoaded(true);
+      return true;
     } catch (error) {
       console.error("Error fetching devices:", error);
       addAlert("Abrufen der Geräte fehlgeschlagen. API Server überprüfen.");
@@ -113,6 +117,7 @@ const Dashboard = () => {
             {filteredDevices.length} {deviceCountText} {title}
           </span>
         </div>
+
         <div className="mx-8 pt-10 mt-4 border-t border-n-5">
           {!isCollapsed && (
             <div className="gridcontainer select-none">
@@ -200,18 +205,31 @@ const Dashboard = () => {
             <Icon
               size={1.25}
               path={mdiReload}
-              className="fixed left-[285px] top-[17px] lg:left-[16px] xl:left-[26px] lg:top-[102px] text-n-4 cursor-pointer bg-n-6 hover:bg-n-5 rounded-md p-1 pl-1.5 z-50 transition-all duration-300 ease-in-out"
-              onClick={(e) => {
-                const svg = e.currentTarget.querySelector("svg"); // Select the actual icon
-                if (svg) {
-                  svg.classList.add("animate-spin", "text-blue-500");
+              className="fixed left-[285px] top-[17px] lg:left-[16px] xl:left-[26px] lg:top-[102px] text-n-4 cursor-pointer bg-n-6 hover:bg-n-5 rounded-md p-1 pl-[5px] z-[48] transition-colors duration-300 ease-in-out"
+              onClick={() => {
+                setProgressBarVisible(true);
+                setProgress(75);
+
+                getDevices().then(() => {
+                  setProgress(100);
                   setTimeout(() => {
-                    svg.classList.remove("animate-spin", "text-blue-500");
-                  }, 500); // Reset after 500ms
-                }
-                getDevices();
+                    setProgressBarVisible(false);
+                  }, 350);
+                  setTimeout(() => {
+                    setProgress(0);
+                  }, 500);
+                });
               }}
             />
+
+            <div
+              className={`fixed top-20 left-0 h-0.25 z-50 bg-blue-700 transition-all duration-200 blink3 ${
+                isProgressBarVisible ? "" : "opacity-0"
+              }`}
+              style={{
+                width: `${progress}%`,
+              }}
+            ></div>
 
             {renderSection(
               filters.needsAttention,

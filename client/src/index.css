@@ -121,6 +121,26 @@
   }
 }
 
+.blink3 {
+  animation: blinker3 1.25s linear infinite;
+}
+
+@keyframes blinker3 {
+  90% {
+    background-color: #6e48f7;
+  }
+}
+
+.editing {
+  animation: blinker4 1.5s linear infinite;
+}
+
+@keyframes blinker4 {
+  50% {
+    opacity: 0.5;
+  }
+}
+
 .tr {
   transition: all 0.15s ease;
 }
