@@ -4,6 +4,9 @@ import Fader from "./FaderWithDetails";
 import Icon from "@mdi/react";
 import { mdiClose, mdiPencil } from "@mdi/js";
 
+import { LineChart } from "@mui/x-charts/LineChart";
+import { axisClasses } from "@mui/x-charts/ChartsAxis";
+
 const getWlIndicatorColors = (tankLevel, barIndex) => {
   const colors = {
     0: ["bg-red-600 blink2", "bg-amber-500", "bg-green-500"],
@@ -171,7 +174,7 @@ const DeviceMenuMaxLgUI = ({ deviceData, onClose, handleSwitchChange, handleFade
             </div>
 
             {deviceData.timestamp != null ? (
-              <div className="text-sm text-n-4 text-center mt-3">
+              <div className="text-sm text-n-4 text-center mt-3 mb-5">
                 <p>Zulezt verbunden vor</p>
                 <p>{`${timeDelta(deviceData.timestamp) || "-"}`}</p>
                 <p>{`(${deviceData.timestamp} GMT)`}</p>
@@ -181,7 +184,47 @@ const DeviceMenuMaxLgUI = ({ deviceData, onClose, handleSwitchChange, handleFade
             )}
           </div>
         </div>
-        <div className="bg-red-800 flex-grow"></div>
+        <div className="flex flex-col flex-grow rounded-md border border-n-6 bg-n-7 overflow-hidden">
+          <div className="flex-grow">
+            <div className="w-full h-full">
+              <LineChart
+                sx={(theme) => ({
+                  [`.${axisClasses.root}`]: {
+                    [`.${axisClasses.tick}, .${axisClasses.line}`]: {
+                      stroke: "#757185",
+                      strokeWidth: 2,
+                    },
+                    [`.${axisClasses.tickLabel}`]: {
+                      fill: "#757185",
+                    },
+                  },
+                  "& .MuiChartsGrid-line": {
+                    stroke: "#252134",
+                  },
+                  '& .MuiChartsAxis-tick[data-state="selected"]': {
+                    stroke: "white",
+                  },
+                  // Dark mode tooltip
+                  "& .MuiChartsTooltip-root": {
+                    backgroundColor: "#121212", // Dark background
+                    color: "#fff", // White text
+                    borderRadius: "8px",
+                    border: "1px solid #333",
+                  },
+                })}
+                xAxis={[{ data: [1, 2, 3, 5, 8, 10] }]}
+                series={[
+                  {
+                    data: [2, 5.5, 2, 83.5, 1.5, 5],
+                    color: "#7b9f80",
+                  },
+                ]}
+                grid={{ vertical: true, horizontal: true }}
+              />
+            </div>
+          </div>
+          <div className="flex items-center h-16 border-t border-n-6 bg-n-8"></div>
+        </div>
       </div>
     </div>
   );

@@ -12,7 +12,6 @@ const DeviceMenu = ({ selectedDeviceData, isVisible, onClose, onUpdateDevice, on
   const [deviceData, setDeviceData] = useState(selectedDeviceData);
   const [prevData, setPrevData] = useState(null);
 
-
   const inputRef = useRef(null);
   const menuRef = useRef(null);
 
@@ -98,7 +97,7 @@ const DeviceMenu = ({ selectedDeviceData, isVisible, onClose, onUpdateDevice, on
           id="main-window"
           className="flex flex-col h-[76vh] w-[80vw] md:w-[90vw] xl:w-[70vw] max-w-[1200px] max-h-[720px]"
         >
-          <div className="hidden lg:block">
+          <div className="hidden lg:block flex-grow">
             <DeviceMenuLgUI
               deviceData={deviceData}
               onClose={onClose}
