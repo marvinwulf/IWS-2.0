@@ -1,24 +1,25 @@
 import React, { useState, useEffect, useRef } from "react";
-import Switch from "./Switch";
 import axios from "axios";
-import Fader from "./FaderWithDetails";
 import DeviceMenuLgUI from "./DeviceMenuDesktop";
 import DeviceMenuMaxLgUI from "./DeviceMenuMobile";
-
-import Icon from "@mdi/react";
-import { mdiClose, mdiPencil } from "@mdi/js";
 
 const DeviceMenu = ({ selectedDeviceData, isVisible, onClose, onUpdateDevice, onError }) => {
   const [deviceData, setDeviceData] = useState(selectedDeviceData);
   const [prevData, setPrevData] = useState(null);
 
-  const inputRef = useRef(null);
   const menuRef = useRef(null);
 
   useEffect(() => {
     setPrevData(deviceData);
     setDeviceData(selectedDeviceData);
   }, [selectedDeviceData]);
+
+  const handleNameChange = (newName) => {
+    const updatedDeviceData = { ...deviceData, name: newName };
+    setDeviceData(updatedDeviceData);
+    onUpdateDevice(updatedDeviceData);
+    pushDeviceData(updatedDeviceData);
+  };
 
   const handleSwitchChange = () => {
     const updatedDeviceData = { ...deviceData, isActive: deviceData.isActive === 1 ? 0 : 1 };
@@ -103,7 +104,8 @@ const DeviceMenu = ({ selectedDeviceData, isVisible, onClose, onUpdateDevice, on
               onClose={onClose}
               handleFaderChange={handleFaderChange}
               handleSwitchChange={handleSwitchChange}
-            ></DeviceMenuLgUI>
+              handleNameChange={handleNameChange}
+            />
           </div>
 
           <div className="block lg:hidden">
@@ -112,7 +114,8 @@ const DeviceMenu = ({ selectedDeviceData, isVisible, onClose, onUpdateDevice, on
               onClose={onClose}
               handleFaderChange={handleFaderChange}
               handleSwitchChange={handleSwitchChange}
-            ></DeviceMenuMaxLgUI>
+              handleNameChange={handleNameChange}
+            />
           </div>
         </div>
       </div>

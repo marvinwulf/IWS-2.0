@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Switch from "./Switch";
 import Fader from "./FaderWithDetails";
 import Icon from "@mdi/react";
@@ -47,13 +47,41 @@ const timeDelta = (sqlDatetime) => {
   }
 };
 
-const DeviceMenuMaxLgUI = ({ deviceData, onClose, handleSwitchChange, handleFaderChange }) => {
+const DeviceMenuMaxLgUI = ({ deviceData, onClose, handleSwitchChange, handleFaderChange, handleNameChange }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newName, setNewName] = useState(deviceData.name);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (isModalOpen) {
+      setTimeout(() => inputRef.current?.focus(), 10);
+    }
+  }, [isModalOpen]);
+
+  const handleSave = () => {
+    handleNameChange(newName);
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setNewName(deviceData.name); // Reset name if canceled
+    setIsModalOpen(false);
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      handleSave();
+    } else if (event.key === "Escape") {
+      handleCancel();
+    }
+  };
+
   return (
     <div className="flex flex-col h-full">
       {/* Desktop Top Bar */}
       <div
         id="top-bar-container"
-        className="relative flex items-center gap-2 h-[72px] w-full border-b border-n-6 mb-2 pb-2"
+        className="relative flex items-center gap-2 h-[72px] w-full border-b border-n-6 mb-2 pb-2 z-50"
       >
         <div id="top-bar-left" className="relative h-full w-[260px] flex justify-center items-center">
           <div className="absolute left-3">
@@ -66,7 +94,10 @@ const DeviceMenuMaxLgUI = ({ deviceData, onClose, handleSwitchChange, handleFade
 
         <div id="top-bar-right" className="flex items-center flex-grow h-full">
           <div>
-            <div className="flex items-center gap-2 -mb-1 hover:opacity-75 hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer">
+            <div
+              className="flex items-center gap-2 -mb-1 hover:opacity-75 hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer"
+              onClick={() => setIsModalOpen(true)}
+            >
               <p className="text-n-1 text-2xl font-bold whitespace-nowrap max-w-[35vw] overflow-hidden overflow-ellipsis">
                 {deviceData.name}
               </p>
@@ -186,7 +217,7 @@ const DeviceMenuMaxLgUI = ({ deviceData, onClose, handleSwitchChange, handleFade
         </div>
         <div className="flex flex-col flex-grow rounded-md border border-n-6 bg-n-7 overflow-hidden">
           <div className="flex-grow">
-            <div className="w-full h-full">
+            <div className="relative w-full h-full">
               <LineChart
                 sx={(theme) => ({
                   [`.${axisClasses.root}`]: {
@@ -226,6 +257,29 @@ const DeviceMenuMaxLgUI = ({ deviceData, onClose, handleSwitchChange, handleFade
           <div className="flex items-center h-16 border-t border-n-6 bg-n-8"></div>
         </div>
       </div>
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-n-7 p-4 rounded-lg shadow-lg w-[300px]">
+            <h2 className="text-n-2 mb-2">Gerätenamen ändern</h2>
+            <input
+              type="text"
+              ref={inputRef}
+              value={newName}
+              onKeyDown={handleKeyDown}
+              onChange={(e) => setNewName(e.target.value)}
+              className="w-full p-2 border border-n-6 rounded-md bg-[#0e0c15] text-n-1 outline-none"
+            />
+            <div className="flex justify-center mt-3 gap-2">
+              <button className="px-3 py-1 bg-n-6 text-white rounded text-sm" onClick={() => setIsModalOpen(false)}>
+                Abbrechen
+              </button>
+              <button className="px-3 py-1 bg-n-5 text-white rounded text-sm" onClick={handleSave}>
+                Speichern
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
