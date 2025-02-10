@@ -9,25 +9,33 @@ const Fader = ({
   fgColor,
   dotColor,
   onFaderChange,
+  onValueChange,
   type,
   deviceDataItem,
+  lockThreshold,
 }) => {
   const [value, setValue] = useState(initialValue);
   const sliderRef = useRef(null);
 
   const updateValue = useCallback(
     (newValue) => {
-      const clampedValue = Math.min(maxValue, Math.max(minValue, newValue));
+      const clampedValue = Math.min(lockThreshold ?? maxValue, Math.max(minValue, newValue));
       setValue(clampedValue);
+
+      // Notify the parent component
+      if (onValueChange) {
+        onValueChange(clampedValue);
+      }
     },
-    [minValue, maxValue, onFaderChange, deviceDataItem]
+    [minValue, maxValue, lockThreshold, onValueChange]
   );
 
   const handleMouseMove = useCallback(
     (e) => {
       if (!sliderRef.current) return;
       const rect = sliderRef.current.getBoundingClientRect();
-      const newValue = ((e.clientX - rect.left) / rect.width) * (maxValue - minValue) + minValue;
+      let newValue = ((e.clientX - rect.left) / rect.width) * (maxValue - minValue) + minValue;
+
       updateValue(newValue);
     },
     [minValue, maxValue, updateValue]
@@ -46,9 +54,15 @@ const Fader = ({
   const handleClick = (e) => {
     if (!sliderRef.current) return;
     const rect = sliderRef.current.getBoundingClientRect();
-    const newValue = ((e.clientX - rect.left) / rect.width) * (maxValue - minValue) + minValue;
+    let newValue = ((e.clientX - rect.left) / rect.width) * (maxValue - minValue) + minValue;
+
+    // Snap to `lockThreshold` if it exceeds
+    if (lockThreshold !== undefined && newValue > lockThreshold) {
+      newValue = lockThreshold;
+    }
+
     updateValue(newValue);
-    onFaderChange(deviceDataItem, Math.round(value));
+    onFaderChange(deviceDataItem, Math.round(newValue));
   };
 
   const formatValue = (val) => {

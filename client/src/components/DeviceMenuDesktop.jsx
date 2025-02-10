@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
+
 import Switch from "./Switch";
 import Fader from "./FaderWithDetails";
+import DemoDeviceDataChart from "./DemoDeviceDataChart";
+import PeriodDeviceDataChart from "./PeriodDeviceDataChart";
+
 import Icon from "@mdi/react";
 import { mdiClose, mdiPencil } from "@mdi/js";
-
-import { LineChart } from "@mui/x-charts/LineChart";
-import { axisClasses } from "@mui/x-charts/ChartsAxis";
 
 const getWlIndicatorColors = (tankLevel, barIndex) => {
   const colors = {
@@ -50,6 +51,8 @@ const timeDelta = (sqlDatetime) => {
 const DeviceMenuMaxLgUI = ({ deviceData, onClose, handleSwitchChange, handleFaderChange, handleNameChange }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newName, setNewName] = useState(deviceData.name);
+  const [threshold, setThreshold] = useState(deviceData.threshold);
+  const [chartView, setChartView] = useState(0);
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -59,7 +62,7 @@ const DeviceMenuMaxLgUI = ({ deviceData, onClose, handleSwitchChange, handleFade
   }, [isModalOpen]);
 
   const handleSave = () => {
-    handleNameChange(newName);
+    handleNameChange(newName || "Unbenannt");
     setIsModalOpen(false);
   };
 
@@ -159,7 +162,9 @@ const DeviceMenuMaxLgUI = ({ deviceData, onClose, handleSwitchChange, handleFade
                 fgColor="bg-red-700"
                 dotColor="bg-n-1"
                 bgColor="bg-green-500"
+                lockThreshold={50}
                 onFaderChange={handleFaderChange}
+                onValueChange={(newValue) => setThreshold(newValue)}
               />
             </div>
 
@@ -174,9 +179,9 @@ const DeviceMenuMaxLgUI = ({ deviceData, onClose, handleSwitchChange, handleFade
               <Fader
                 minValue={0}
                 maxValue={10000}
-                initialValue={deviceData.watervol || 0}
+                initialValue={deviceData.waterVol || 0}
                 settingName="Pumpvolumen"
-                deviceDataItem="watervol"
+                deviceDataItem="waterVol"
                 type="volume"
                 fgColor="bg-blue-800"
                 dotColor="bg-n-1"
@@ -217,49 +222,35 @@ const DeviceMenuMaxLgUI = ({ deviceData, onClose, handleSwitchChange, handleFade
         </div>
         <div className="flex flex-col flex-grow rounded-md border border-n-6 bg-n-7 overflow-hidden">
           <div className="flex-grow">
-            <div className="relative w-full h-full">
-              <LineChart
-                sx={(theme) => ({
-                  [`.${axisClasses.root}`]: {
-                    [`.${axisClasses.tick}, .${axisClasses.line}`]: {
-                      stroke: "#757185",
-                      strokeWidth: 2,
-                    },
-                    [`.${axisClasses.tickLabel}`]: {
-                      fill: "#757185",
-                    },
-                  },
-                  "& .MuiChartsGrid-line": {
-                    stroke: "#252134",
-                  },
-                  '& .MuiChartsAxis-tick[data-state="selected"]': {
-                    stroke: "white",
-                  },
-                  // Dark mode tooltip
-                  "& .MuiChartsTooltip-root": {
-                    backgroundColor: "#121212", // Dark background
-                    color: "#fff", // White text
-                    borderRadius: "8px",
-                    border: "1px solid #333",
-                  },
-                })}
-                xAxis={[{ data: [1, 2, 3, 5, 8, 10] }]}
-                series={[
-                  {
-                    data: [2, 5.5, 2, 83.5, 1.5, 5],
-                    color: "#7b9f80",
-                  },
-                ]}
-                grid={{ vertical: true, horizontal: true }}
-              />
+            <div className="relative w-full h-full pb-2">
+              {chartView === 0 && <DemoDeviceDataChart UIDParam={deviceData.UID} threshold={threshold} />}
+              {chartView === 1 && <PeriodDeviceDataChart UIDParam={deviceData.UID} threshold={threshold} />}
             </div>
           </div>
-          <div className="flex items-center h-16 border-t border-n-6 bg-n-8"></div>
+          <div className="flex items-center h-16 border-t border-n-6 bg-n-8 px-6 gap-2">
+            <div className="text-sm text-n-4 py-1 px-2 rounded-lg">Chart-Ansicht:</div>
+            {[
+              { label: "Demo", view: 0 },
+              { label: "4 Wochen", view: 1 },
+              { label: "3 Monate", view: 2 },
+              { label: "1 Jahr", view: 3 },
+            ].map(({ label, view }) => (
+              <div
+                key={view}
+                className={`text-sm py-1 px-2 rounded-lg cursor-pointer transition-colors ${
+                  chartView === view ? "bg-n-5 text-white" : "bg-n-6 text-gray-400"
+                }`}
+                onClick={() => setChartView(view)}
+              >
+                {label}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-n-7 p-4 rounded-lg shadow-lg w-[300px]">
+          <div className="bg-n-7 p-4 rounded-lg shadow-lg w-[300px] border-n-6 border">
             <h2 className="text-n-2 mb-2">Gerätenamen ändern</h2>
             <input
               type="text"
@@ -267,13 +258,16 @@ const DeviceMenuMaxLgUI = ({ deviceData, onClose, handleSwitchChange, handleFade
               value={newName}
               onKeyDown={handleKeyDown}
               onChange={(e) => setNewName(e.target.value)}
-              className="w-full p-2 border border-n-6 rounded-md bg-[#0e0c15] text-n-1 outline-none"
+              className="w-full p-2 border border-n-6 rounded-md bg-[#0e0c15] text-n-1 outline-none pb-[7px]"
             />
             <div className="flex justify-center mt-3 gap-2">
-              <button className="px-3 py-1 bg-n-6 text-white rounded text-sm" onClick={() => setIsModalOpen(false)}>
+              <button
+                className="px-3 py-1 bg-n-6 text-white rounded text-sm hover:bg-n-5 tr"
+                onClick={() => setIsModalOpen(false)}
+              >
                 Abbrechen
               </button>
-              <button className="px-3 py-1 bg-n-5 text-white rounded text-sm" onClick={handleSave}>
+              <button className="px-3 py-1 bg-n-5 text-white rounded text-sm hover:bg-n-4 tr" onClick={handleSave}>
                 Speichern
               </button>
             </div>

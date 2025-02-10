@@ -114,9 +114,9 @@ const MaxLgDMPage0 = ({ deviceData, handleSwitchChange, handleFaderChange }) => 
               <Fader
                 minValue={0}
                 maxValue={10000}
-                initialValue={deviceData.watervol || 0}
+                initialValue={deviceData.waterVol || 0}
                 settingName="Pumpvolumen"
-                deviceDataItem="watervol"
+                deviceDataItem="waterVol"
                 type="volume"
                 fgColor="bg-blue-800"
                 dotColor="bg-n-1"

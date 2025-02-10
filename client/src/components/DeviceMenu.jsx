@@ -46,7 +46,7 @@ const DeviceMenu = ({ selectedDeviceData, isVisible, onClose, onUpdateDevice, on
         name: updatedData.name,
         isActive: updatedData.isActive,
         threshold: updatedData.threshold,
-        watervol: updatedData.watervol,
+        waterVol: updatedData.waterVol,
       });
 
       if (response.status === 200) {
@@ -59,7 +59,7 @@ const DeviceMenu = ({ selectedDeviceData, isVisible, onClose, onUpdateDevice, on
             name: updatedData.name,
             isActive: updatedData.isActive,
             threshold: updatedData.threshold,
-            watervol: updatedData.watervol,
+            waterVol: updatedData.waterVol,
           }
         );
       } else {
