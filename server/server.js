@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import sqlite from "better-sqlite3";
 import path from "path";
+import { WebSocketServer, WebSocket } from "ws";
 
 const app = express();
 app.use(express.json());
@@ -9,10 +10,42 @@ app.use(express.json());
 const dbPath = path.resolve("./data/main.db");
 const db = sqlite(dbPath, { verbose: console.log });
 
-const corsOptions = {
-  origin: ["http://localhost:5173"],
+app.use(cors({ origin: "*" }));
+
+// Create an HTTP server
+const PORT = 8080;
+const server = app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
+// Create a WebSocket server
+const wss = new WebSocketServer({ server });
+
+const broadcastDevicesUpdate = () => {
+  console.log("Broadcasting devices update.");
+  const devices = db.prepare("SELECT * FROM devices").all();
+  const data = JSON.stringify({ type: "devices_update", data: devices });
+
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      // Use WebSocket.OPEN
+      client.send(data);
+    }
+  });
 };
-app.use(cors(corsOptions));
+
+wss.on("connection", (ws) => {
+  console.log("New WebSocket connection established.");
+
+  // Send the current devices data to the newly connected client
+  const devices = db.prepare("SELECT * FROM devices").all();
+  ws.send(JSON.stringify({ type: "devices_update", data: devices }));
+
+  // Handle WebSocket close
+  ws.on("close", () => {
+    console.log("WebSocket connection closed.");
+  });
+});
 
 // Route to fetch all devices
 app.get("/devices", (req, res) => {
@@ -46,7 +79,7 @@ app.get("/devices/:uid", (req, res) => {
 // Route to update a device by uid
 app.put("/devices/:uid", (req, res) => {
   const { uid } = req.params;
-  const updates = req.body; // Fields to update
+  const updates = req.body;
 
   if (!updates || Object.keys(updates).length === 0) {
     return res.status(400).json({ error: "No update fields provided." });
@@ -62,6 +95,8 @@ app.put("/devices/:uid", (req, res) => {
     const result = stmt.run({ ...updates, uid });
 
     if (result.changes > 0) {
+      // Broadcast the updated devices data to all WebSocket clients
+      broadcastDevicesUpdate();
       res.status(200).json({ message: "Device updated successfully." });
     } else {
       res.status(404).json({ error: "Device not found." });
@@ -219,10 +254,4 @@ app.post("/datalogRolling", (req, res) => {
     console.error("Error processing request:", err);
     res.status(500).json({ error: "Failed to process request." });
   }
-});
-
-// Start the server
-const PORT = 8080;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
 });

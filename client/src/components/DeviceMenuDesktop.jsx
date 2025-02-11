@@ -56,6 +56,11 @@ const DeviceMenuMaxLgUI = ({ deviceData, onClose, handleSwitchChange, handleFade
   const inputRef = useRef(null);
 
   useEffect(() => {
+    setNewName(deviceData.name); // Update name
+    setThreshold(deviceData.threshold); // Update threshold
+  }, [deviceData]);
+
+  useEffect(() => {
     if (isModalOpen) {
       setTimeout(() => inputRef.current?.focus(), 10);
     }
@@ -131,7 +136,7 @@ const DeviceMenuMaxLgUI = ({ deviceData, onClose, handleSwitchChange, handleFade
                 <p className="text-sm text-n-1">Bodenfeuchte</p>
                 <input
                   type="text"
-                  value={(deviceData.soilMoisture || "-") + " %"}
+                  value={(deviceData.soilMoisture === null ? "-" : deviceData.soilMoisture) + " %"}
                   disabled={true}
                   className="w-16 border border-n-6 rounded-md text-center outline-none text-sm bg-[#0e0c15] text-n-1"
                 />
@@ -155,7 +160,7 @@ const DeviceMenuMaxLgUI = ({ deviceData, onClose, handleSwitchChange, handleFade
               <Fader
                 minValue={0}
                 maxValue={100}
-                initialValue={deviceData.threshold || 0}
+                initialValue={threshold || 0}
                 settingName="Schwellenwert"
                 deviceDataItem="threshold"
                 type="percent"
@@ -196,7 +201,7 @@ const DeviceMenuMaxLgUI = ({ deviceData, onClose, handleSwitchChange, handleFade
                 <p className="text-sm">Batterieladung</p>
                 <input
                   type="text"
-                  value={(deviceData.batLevel || "-") + " %"}
+                  value={(deviceData.batLevel === null ? "-" : deviceData.batLevel) + " %"}
                   disabled={true}
                   className="w-16 border border-n-6 rounded-md text-center outline-none text-sm bg-[#0e0c15] text-n-1"
                 />

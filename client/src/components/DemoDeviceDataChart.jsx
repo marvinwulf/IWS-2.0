@@ -23,18 +23,20 @@ const darkTheme = createTheme({
 });
 
 const DemoDeviceDataChart = ({ UIDParam, threshold }) => {
-  const [dataListMoisture, setDataListMoisture] = useState([]);
-  const [dataListBattery, setDataListBattery] = useState([]);
-  const [dataListTank, setDataListTank] = useState([]);
+  const [moistureSeries, setMoistureSeries] = useState([]);
+  const [batterySeries, setBatterySeries] = useState([]);
+  const [tankSeries, setTankSeries] = useState([]);
+  const [pumpSeries, setPumpSeries] = useState([]);
 
   const [xDataRolling, setXDataRolling] = useState([]);
 
   const fetchLatestData = async () => {
     try {
       const response = await axios.get(`http://localhost:8080/datalogRolling?UID=${UIDParam}`);
-      setDataListMoisture((prevData) => [...prevData, response.data.soilMoisture]);
-      setDataListBattery((prevData) => [...prevData, response.data.batLevel]);
-      setDataListTank((prevData) => [...prevData, response.data.tankLevel]);
+      setMoistureSeries((prevData) => [...prevData, response.data.soilMoisture]);
+      setBatterySeries((prevData) => [...prevData, response.data.batLevel]);
+      setTankSeries((prevData) => [...prevData, response.data.tankLevel]);
+      setPumpSeries((prevData) => [...prevData, response.data.pumpActive === 1 ? 100 : null]);
 
       console.log(response.data);
     } catch (err) {
@@ -68,15 +70,16 @@ const DemoDeviceDataChart = ({ UIDParam, threshold }) => {
   }, [UIDParam]);
 
   useEffect(() => {
-    if (dataListMoisture.length > 23) {
-      setDataListMoisture([]);
-      setDataListBattery([]);
-      setDataListTank([]);
+    if (moistureSeries.length > 23) {
+      setMoistureSeries([]);
+      setBatterySeries([]);
+      setTankSeries([]);
+      setPumpSeries([]);
 
       fetchLatestData();
       generateXData();
     }
-  }, [dataListMoisture]);
+  }, [moistureSeries]);
 
   // Format time as HH:MM:SS
   const formatTime = (timestamp) => {
@@ -117,25 +120,42 @@ const DemoDeviceDataChart = ({ UIDParam, threshold }) => {
           series={[
             {
               showMark: false,
-              label: "Bodenfeuchte",
-              data: dataListMoisture,
+              label: "Bodenfeuchte", // Soil Moisture
+              data: moistureSeries,
+              connectNulls: true, // Ensures gaps are not skipped
+              valueFormatter: (value) => `${value !== null ? value + "%" : ""}`,
             },
             {
               showMark: false,
-              label: "Wasserstand",
-              data: dataListTank,
+              label: "Wasserstand", // Soil Moisture
+              data: tankSeries,
               yAxisId: "tankLevelAxis",
+              connectNulls: true, // Ensures gaps are not skipped
+              valueFormatter: (value) =>
+                value !== null ? (value === 2 ? "Voll" : value === 1 ? "Halbvoll" : "Leer") : "",
             },
             {
               showMark: false,
-              label: "Batterieladung",
-              data: dataListBattery,
+              label: "Batterieladung", // Soil Moisture
+              data: batterySeries,
+              connectNulls: true, // Ensures gaps are not skipped
+              valueFormatter: (value) => `${value !== null ? value + "%" : ""}`,
             },
-            // **Horizontal Line Series**
             {
+              label: (location) => `${location === "legend" ? "" : "Pumpe"}`,
+              data: pumpSeries,
+              color: "white",
+              showMark: true,
+              markerSize: 8,
+              tooltip: false,
+              valueFormatter: (value) => (value === 100 ? "Aktiviert" : ""),
+            },
+            {
+              label: (location) => `${location === "legend" ? "" : "Schwellenwert"}`,
               showMark: false,
-              data: new Array(xDataRolling.length).fill(threshold),
+              data: new Array(xDataRolling.length).fill(threshold), // Threshold line
               color: "gray",
+              valueFormatter: (value) => `${Math.round(value)}%`,
             },
           ]}
           grid={{ horizontal: true }}

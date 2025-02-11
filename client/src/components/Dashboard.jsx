@@ -3,12 +3,14 @@ import catmascot from "../assets/cat-mascot-void.svg";
 import DeviceCard from "./DeviceCard";
 import DeviceMenu from "./DeviceMenu";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import axios from "axios";
 
 import Icon from "@mdi/react";
 import { mdiChevronDown, mdiReload } from "@mdi/js";
+
+const ws = new WebSocket("ws://192.168.178.29:8080");
 
 const setCookie = (name, value, days = 365) => {
   const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
@@ -32,25 +34,49 @@ const Dashboard = () => {
   const [progress, setProgress] = useState(0);
   const [isProgressBarVisible, setProgressBarVisible] = useState(false);
 
-  // Fetching devices from API and loading into deviceList
-  const getDevices = async () => {
-    try {
-      const { data } = await axios.get("http://localhost:8080/devices");
-      setDevices(data.devices || []);
-      console.log("%c[API] Fetched devices array:", "color: #00ff99", data.devices);
-      setLoaded(true);
-      return true;
-    } catch (error) {
-      console.error("Error fetching devices:", error);
-      addAlert("Abrufen der Geräte fehlgeschlagen. API Server überprüfen.");
+  const ws = useRef(null);
+
+  useEffect(() => {
+    ws.current = new WebSocket("ws://192.168.178.29:8080");
+
+    ws.current.onopen = () => {
+      console.log("WebSocket connection established.");
+    };
+
+    ws.current.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      if (message.type === "devices_update") {
+        console.log("Received devices update:", message.data);
+
+        // Update the device list
+        setDevices(message.data);
+        setLoaded(true);
+      }
+    };
+
+    // Cleanup WebSocket on component unmount
+    return () => {
+      if (ws.current) {
+        ws.current.close();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isLoaded) {
+      console.log("Update selected device data:", selectedDeviceData);
+      if (selectedDeviceData) {
+        const updatedDevice = deviceList.find((device) => device.UID === selectedDeviceData.UID);
+        if (updatedDevice) {
+          console.log("Pass");
+          setSelectedDeviceData(updatedDevice); // Update the selected device data
+        }
+      }
     }
-  };
+  }, [deviceList]);
 
   // Execute on website mount
   useEffect(() => {
-    setLoaded(false);
-    getDevices();
-
     const savedSections = getCookie("collapsedSections");
     if (savedSections) setCollapsedSections(savedSections);
   }, []);
@@ -131,25 +157,21 @@ const Dashboard = () => {
 
   // Handling of the device menu, loading the clicked card data into selectedDeviceData
   const openDeviceMenuHandler = (UID) => {
-    getDevices();
+    console.log("Opening device menu");
     setOpenDeviceMenu(true);
+
     const device = deviceList.find((device) => device.UID === UID);
+
     if (device) {
       setSelectedDeviceData(device);
-      console.log(
-        "%c[DEBUG] Loaded device data for %c" + device.UID + "%c:",
-        "color: #00ff99",
-        "color: orange",
-        "color: #00ff99",
-        device
-      );
+      console.log("Selected Device Data:", device);
     }
   };
 
   // Close the device menu and make an API request in the background
   const closeDeviceMenuHandler = () => {
+    console.log("Closing device menu");
     setSelectedDeviceData(null);
-    getDevices();
     setOpenDeviceMenu(false);
   };
 
@@ -197,35 +219,6 @@ const Dashboard = () => {
       <div className="md:mx-6 lg:mx-8 xl:mx-10 pt-20 pb-10 min-h-svh">
         {isLoaded ? (
           <div>
-            <Icon
-              size={1.25}
-              path={mdiReload}
-              className="fixed left-[285px] top-[17px] lg:left-[16px] xl:left-[26px] lg:top-[102px] text-n-4 cursor-pointer bg-n-6 hover:bg-n-5 rounded-md p-1 pl-[5px] z-[48] transition-colors duration-300 ease-in-out"
-              onClick={() => {
-                setProgressBarVisible(true);
-                setProgress(75);
-
-                getDevices().then(() => {
-                  setProgress(100);
-                  setTimeout(() => {
-                    setProgressBarVisible(false);
-                  }, 350);
-                  setTimeout(() => {
-                    setProgress(0);
-                  }, 500);
-                });
-              }}
-            />
-
-            <div
-              className={`fixed top-16 lg:top-20 left-0 h-0.25 z-50 bg-blue-700 transition-all duration-200 blink3 ${
-                isProgressBarVisible ? "" : "opacity-0"
-              }`}
-              style={{
-                width: `${progress}%`,
-              }}
-            ></div>
-
             {renderSection(
               filters.needsAttention,
               "needsAttention",
@@ -304,15 +297,17 @@ const Dashboard = () => {
       </div>
 
       {isDeviceMenuOpen && selectedDeviceData && (
-        <DeviceMenu
-          selectedDeviceData={selectedDeviceData}
-          isVisible={isDeviceMenuOpen}
-          onClose={() => {
-            closeDeviceMenuHandler();
-          }}
-          onUpdateDevice={updateDeviceList}
-          onError={() => addAlert("Daten-Update fehlgeschlagen. API Server überprüfen.")}
-        />
+        <div>
+          <DeviceMenu
+            selectedDeviceData={selectedDeviceData}
+            isVisible={isDeviceMenuOpen}
+            onClose={() => {
+              closeDeviceMenuHandler();
+            }}
+            onUpdateDevice={updateDeviceList}
+            onError={() => addAlert("Daten-Update fehlgeschlagen. API Server überprüfen.")}
+          />
+        </div>
       )}
     </Section>
   );

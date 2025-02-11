@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 const Fader = ({
   minValue,
@@ -17,29 +17,28 @@ const Fader = ({
   const [value, setValue] = useState(initialValue);
   const sliderRef = useRef(null);
 
-  const updateValue = useCallback(
-    (newValue) => {
-      const clampedValue = Math.min(lockThreshold ?? maxValue, Math.max(minValue, newValue));
-      setValue(clampedValue);
+  // Update internal state when initialValue changes
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
 
-      // Notify the parent component
-      if (onValueChange) {
-        onValueChange(clampedValue);
-      }
-    },
-    [minValue, maxValue, lockThreshold, onValueChange]
-  );
+  const updateValue = (newValue) => {
+    const clampedValue = Math.min(lockThreshold ?? maxValue, Math.max(minValue, newValue));
+    setValue(clampedValue);
 
-  const handleMouseMove = useCallback(
-    (e) => {
-      if (!sliderRef.current) return;
-      const rect = sliderRef.current.getBoundingClientRect();
-      let newValue = ((e.clientX - rect.left) / rect.width) * (maxValue - minValue) + minValue;
+    // Notify the parent component
+    if (onValueChange) {
+      onValueChange(clampedValue);
+    }
+  };
 
-      updateValue(newValue);
-    },
-    [minValue, maxValue, updateValue]
-  );
+  const handleMouseMove = (e) => {
+    if (!sliderRef.current) return;
+    const rect = sliderRef.current.getBoundingClientRect();
+    let newValue = ((e.clientX - rect.left) / rect.width) * (maxValue - minValue) + minValue;
+
+    updateValue(newValue);
+  };
 
   const handleMouseDown = () => {
     document.addEventListener("mousemove", handleMouseMove);
@@ -85,7 +84,9 @@ const Fader = ({
           style={{ width: `${((value - minValue) / (maxValue - minValue)) * 100}%` }}
         />
         <div
-          className={`absolute top-0 right-0 h-full ${bgColor} rounded-r-full`}
+          className={`absolute top-0 right-0 h-full ${
+            value === lockThreshold ? "opacity-40" : "opacity-100"
+          } rounded-r-full transition-opacity duration-150 ${bgColor}`}
           style={{ width: `${(1 - (value - minValue) / (maxValue - minValue)) * 100}%` }}
         />
         <div className="relative mx-[5px]">

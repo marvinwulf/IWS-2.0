@@ -4,12 +4,12 @@
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "nodemon": "^3.1.9",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "ws": "^8.18.0"
   },
   "name": "server",
   "version": "1.0.0",
   "main": "server.js",
-  "devDependencies": {},
   "author": "",
   "license": "ISC",
   "description": "",

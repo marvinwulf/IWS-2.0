@@ -42,7 +42,7 @@ const DeviceMenu = ({ selectedDeviceData, isVisible, onClose, onUpdateDevice, on
 
   const pushDeviceData = async (updatedData) => {
     try {
-      const response = await axios.put(`http://localhost:8080/devices/${updatedData.UID}`, {
+      const response = await axios.put(`http://192.168.178.29:8080/devices/${updatedData.UID}`, {
         name: updatedData.name,
         isActive: updatedData.isActive,
         threshold: updatedData.threshold,

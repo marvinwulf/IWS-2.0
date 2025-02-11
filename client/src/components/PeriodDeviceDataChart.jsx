@@ -136,17 +136,11 @@ const PeriodDeviceDataChart = ({ UIDParam, threshold }) => {
           rightAxis="tankLevelAxis"
           series={[
             {
-              label: "Pumpe",
-              data: pumpSeries,
-              color: "white",
-              showMark: true,
-              markerSize: 8,
-            },
-            {
               showMark: false,
               label: "Bodenfeuchte", // Soil Moisture
               data: moistureSeries,
               connectNulls: true, // Ensures gaps are not skipped
+              valueFormatter: (value) => `${value}%`,
             },
             {
               showMark: false,
@@ -154,21 +148,41 @@ const PeriodDeviceDataChart = ({ UIDParam, threshold }) => {
               data: tankSeries,
               yAxisId: "tankLevelAxis",
               connectNulls: true, // Ensures gaps are not skipped
+              valueFormatter: (value) => (value === 2 ? "Voll" : value === 1 ? "Halbvoll" : "Leer"),
             },
             {
               showMark: false,
               label: "Batterieladung", // Soil Moisture
               data: batterySeries,
               connectNulls: true, // Ensures gaps are not skipped
+              valueFormatter: (value) => `${value}%`,
             },
-
             {
+              label: (location) => `${location === "legend" ? "" : "Pumpe"}`,
+              data: pumpSeries,
+              color: "white",
+              showMark: true,
+              markerSize: 8,
+              tooltip: false,
+              valueFormatter: (value) => (value === 100 ? "Aktiviert" : ""),
+            },
+            {
+              label: (location) => `${location === "legend" ? "" : "Schwellenwert"}`,
               showMark: false,
               data: new Array(xData.length).fill(threshold), // Threshold line
               color: "gray",
+              valueFormatter: (value) => `${Math.round(value)}%`,
             },
           ]}
           grid={{ horizontal: true }}
+          slotProps={{
+            legend: {
+              itemMarkWidth: 20,
+              itemMarkHeight: 2,
+              markGap: 5,
+              itemGap: 10,
+            },
+          }}
         />
       </ThemeProvider>
     </div>
