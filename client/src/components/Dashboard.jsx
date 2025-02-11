@@ -46,7 +46,7 @@ const Dashboard = () => {
     ws.current.onmessage = (event) => {
       const message = JSON.parse(event.data);
       if (message.type === "devices_update") {
-        console.log("Received devices update:", message.data);
+        console.log("[DASHBOARD] WEBSOCKET Update:", message.data);
 
         // Update the device list
         setDevices(message.data);
@@ -64,11 +64,10 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (isLoaded) {
-      console.log("Update selected device data:", selectedDeviceData);
       if (selectedDeviceData) {
         const updatedDevice = deviceList.find((device) => device.UID === selectedDeviceData.UID);
         if (updatedDevice) {
-          console.log("Pass");
+          console.log("[DASHBOARD] Updated Selected Device Data:", updatedDevice);
           setSelectedDeviceData(updatedDevice); // Update the selected device data
         }
       }
@@ -180,13 +179,7 @@ const Dashboard = () => {
     setDevices((prevDevices) =>
       prevDevices.map((device) => (device.UID === updatedDevice.UID ? { ...updatedDevice } : device))
     );
-    console.log(
-      "%c[DEBUG] Updated device array optimistically for %c" + updatedDevice.UID + "%c:",
-      "color: cyan",
-      "color: orange",
-      "color: cyan",
-      updatedDevice
-    );
+    console.log("[DASHBOARD] Optimistic Device Update:", updatedDevice);
   };
 
   const addAlert = (message) => {
@@ -299,7 +292,7 @@ const Dashboard = () => {
       {isDeviceMenuOpen && selectedDeviceData && (
         <div>
           <DeviceMenu
-            selectedDeviceData={selectedDeviceData}
+            selectedDeviceDataProp={selectedDeviceData}
             isVisible={isDeviceMenuOpen}
             onClose={() => {
               closeDeviceMenuHandler();

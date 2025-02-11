@@ -3,38 +3,39 @@ import axios from "axios";
 import DeviceMenuLgUI from "./DeviceMenuDesktop";
 import DeviceMenuMaxLgUI from "./DeviceMenuMobile";
 
-const DeviceMenu = ({ selectedDeviceData, isVisible, onClose, onUpdateDevice, onError }) => {
-  const [deviceData, setDeviceData] = useState(selectedDeviceData);
+const DeviceMenu = ({ selectedDeviceDataProp, isVisible, onClose, onUpdateDevice, onError }) => {
+  const [selectedDeviceData, setSelectedDeviceData] = useState(selectedDeviceDataProp);
   const [prevData, setPrevData] = useState(null);
 
   const menuRef = useRef(null);
 
   useEffect(() => {
-    setPrevData(deviceData);
-    setDeviceData(selectedDeviceData);
-  }, [selectedDeviceData]);
+    console.log("[DEVICE MENU] Selected Device Prop got updated:", selectedDeviceDataProp);
+    setPrevData(selectedDeviceData);
+    setSelectedDeviceData(selectedDeviceDataProp);
+  }, [selectedDeviceDataProp]);
 
   const handleNameChange = (newName) => {
-    const updatedDeviceData = { ...deviceData, name: newName };
-    setDeviceData(updatedDeviceData);
+    const updatedDeviceData = { ...selectedDeviceData, name: newName };
+    setSelectedDeviceData(updatedDeviceData);
     onUpdateDevice(updatedDeviceData);
     pushDeviceData(updatedDeviceData);
   };
 
   const handleSwitchChange = () => {
-    const updatedDeviceData = { ...deviceData, isActive: deviceData.isActive === 1 ? 0 : 1 };
-    setDeviceData(updatedDeviceData);
+    const updatedDeviceData = { ...selectedDeviceData, isActive: selectedDeviceData.isActive === 1 ? 0 : 1 };
+    setSelectedDeviceData(updatedDeviceData);
 
-    console.log("%c[EDIT] Device active switch toggled to", "color: cyan", Boolean(updatedDeviceData.isActive));
+    console.log("[DEVICE MENU] EDIT Device active switch toggled to", Boolean(updatedDeviceData.isActive));
     onUpdateDevice(updatedDeviceData);
     pushDeviceData(updatedDeviceData);
   };
 
   const handleFaderChange = (type, value) => {
-    const updatedDeviceData = { ...deviceData, [type]: value };
-    setDeviceData(updatedDeviceData);
+    const updatedDeviceData = { ...selectedDeviceData, [type]: value };
+    setSelectedDeviceData(updatedDeviceData);
 
-    console.log(`%c[EDIT] ${type}-fader updated to value = ${value}`, "color: cyan");
+    console.log(`[DEVICE MENU] EDIT ${type}-fader updated to value = ${value}`);
 
     onUpdateDevice(updatedDeviceData);
     pushDeviceData(updatedDeviceData);
@@ -50,26 +51,21 @@ const DeviceMenu = ({ selectedDeviceData, isVisible, onClose, onUpdateDevice, on
       });
 
       if (response.status === 200) {
-        console.log(
-          "%c[API] Pushed edited device data for %c" + updatedData.UID + "%c:",
-          "color: #bada55",
-          "color: orange",
-          "color: #bada55",
-          {
-            name: updatedData.name,
-            isActive: updatedData.isActive,
-            threshold: updatedData.threshold,
-            waterVol: updatedData.waterVol,
-          }
-        );
+        console.log("[DEVICE MENU] Successfully called API to update data:", {
+          UID: updatedData.UID,
+          name: updatedData.name,
+          isActive: updatedData.isActive,
+          threshold: updatedData.threshold,
+          waterVol: updatedData.waterVol,
+        });
       } else {
-        throw new Error("[API] Failed to update the device status");
+        throw new Error("[DEVICE MENU] Failed to update the device data");
       }
     } catch (error) {
-      console.error("Error updating device status:", error);
+      console.error("[DEVICE MENU] Error calling API, reverting data.", error);
       onError();
       onUpdateDevice(prevData);
-      setDeviceData(prevData);
+      setSelectedDeviceData(prevData);
     }
   };
 
@@ -100,7 +96,7 @@ const DeviceMenu = ({ selectedDeviceData, isVisible, onClose, onUpdateDevice, on
         >
           <div className="hidden lg:block flex-grow">
             <DeviceMenuLgUI
-              deviceData={deviceData}
+              deviceData={selectedDeviceData}
               onClose={onClose}
               handleFaderChange={handleFaderChange}
               handleSwitchChange={handleSwitchChange}
@@ -110,7 +106,7 @@ const DeviceMenu = ({ selectedDeviceData, isVisible, onClose, onUpdateDevice, on
 
           <div className="block lg:hidden">
             <DeviceMenuMaxLgUI
-              deviceData={deviceData}
+              deviceData={selectedDeviceData}
               onClose={onClose}
               handleFaderChange={handleFaderChange}
               handleSwitchChange={handleSwitchChange}
