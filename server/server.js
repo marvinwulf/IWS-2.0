@@ -74,22 +74,42 @@ app.put("/devices/:uid", (req, res) => {
 
 // Route to fetch data log by UID
 app.get("/datalog", (req, res) => {
-  const { UID } = req.query;
+  const { UID, startDate } = req.query;
 
   if (!UID) {
     return res.status(400).json({ error: "Missing UID parameter." });
   }
 
   try {
-    const stmt = db.prepare(
-      "SELECT timestamp, batLevel, tankLevel, soilMoisture, pumpActive FROM datalog WHERE UID = ?"
-    );
-    const rows = stmt.all(UID);
+    const dateFilter = startDate ? new Date(startDate) : new Date();
+
+    if (isNaN(dateFilter.getTime())) {
+      return res.status(400).json({ error: "Invalid startDate format." });
+    }
+
+    const formattedDate = dateFilter.toISOString().split("T")[0];
+
+    const stmt = db.prepare(`
+      SELECT 
+        DATE(timestamp) AS date, 
+        soilMoisture,
+        tankLevel,
+        batLevel,
+        pumpActive
+      FROM datalog
+      WHERE UID = ? AND DATE(timestamp) <= ?
+      GROUP BY date
+      ORDER BY date DESC
+      LIMIT 28
+    `);
+
+    const rows = stmt.all(UID, formattedDate);
 
     if (rows.length === 0) {
       return res.status(404).json({ error: "No data found for this UID." });
     }
 
+    console.log("Fetched Data:", rows); // Debugging
     res.status(200).json(rows);
   } catch (err) {
     console.error("Error fetching data log:", err);
