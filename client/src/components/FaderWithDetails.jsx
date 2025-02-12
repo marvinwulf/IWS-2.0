@@ -46,12 +46,11 @@ const Fader = ({
   };
 
   const handleTouchMove = (e) => {
-    // Prevent default behavior to stop page scrolling
-    e.preventDefault();
+    e.preventDefault(); // Prevent default behavior to stop page scrolling
     handleMove(e.touches[0].clientX);
   };
 
-  const handleMouseDown = () => {
+  const handleMouseDown = (e) => {
     isDragging.current = true;
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
@@ -59,18 +58,49 @@ const Fader = ({
 
   const handleTouchStart = (e) => {
     isDragging.current = true;
-    document.addEventListener("touchmove", handleTouchMove, { passive: false }); // Set passive: false to allow preventDefault
+    document.addEventListener("touchmove", handleTouchMove, { passive: false });
     document.addEventListener("touchend", handleTouchEnd);
   };
 
-  const handleMouseUp = () => {
+  const handleMouseUp = (e) => {
     isDragging.current = false;
+
+    // Trigger the same value update behavior as clicking
+    if (sliderRef.current) {
+      const rect = sliderRef.current.getBoundingClientRect();
+      let newValue = ((e.clientX - rect.left) / rect.width) * (maxValue - minValue) + minValue;
+
+      // Snap to `lockThreshold` if it exceeds
+      if (lockThreshold !== undefined && newValue > lockThreshold) {
+        newValue = lockThreshold;
+      }
+
+      updateValue(newValue);
+      onFaderChange(deviceDataItem, Math.round(newValue));
+    }
+
     document.removeEventListener("mousemove", handleMouseMove);
     document.removeEventListener("mouseup", handleMouseUp);
   };
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = (e) => {
     isDragging.current = false;
+
+    // Trigger the same value update behavior as clicking
+    if (sliderRef.current && e.touches.length === 0) {
+      // Ensure touch ends properly
+      const rect = sliderRef.current.getBoundingClientRect();
+      let newValue = ((e.changedTouches[0].clientX - rect.left) / rect.width) * (maxValue - minValue) + minValue;
+
+      // Snap to `lockThreshold` if it exceeds
+      if (lockThreshold !== undefined && newValue > lockThreshold) {
+        newValue = lockThreshold;
+      }
+
+      updateValue(newValue);
+      onFaderChange(deviceDataItem, Math.round(newValue));
+    }
+
     document.removeEventListener("touchmove", handleTouchMove);
     document.removeEventListener("touchend", handleTouchEnd);
   };

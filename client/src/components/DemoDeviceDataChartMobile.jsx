@@ -22,7 +22,7 @@ const darkTheme = createTheme({
   },
 });
 
-const DemoDeviceDataChart = ({ UIDParam, threshold, isActive }) => {
+const DemoDeviceDataChartMobile = ({ UIDParam, threshold, isActive }) => {
   const [moistureSeries, setMoistureSeries] = useState([]);
   const [batterySeries, setBatterySeries] = useState([]);
   const [tankSeries, setTankSeries] = useState([]);
@@ -32,7 +32,7 @@ const DemoDeviceDataChart = ({ UIDParam, threshold, isActive }) => {
 
   const fetchLatestData = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/datalogRolling?UID=${UIDParam}`);
+      const response = await axios.get(`http://192.168.178.29:8080/datalogRolling?UID=${UIDParam}`);
 
       // Add data to series only if isActive is 1, otherwise add null
       setMoistureSeries((prevData) => [...prevData, isActive === 1 ? response.data.soilMoisture : null]);
@@ -94,7 +94,11 @@ const DemoDeviceDataChart = ({ UIDParam, threshold, isActive }) => {
   };
 
   return (
-    <div className={`w-full h-full transition-opacity duration-150 ${isActive === 1 ? "opacity-100" : "opacity-40"}`}>
+    <div
+      className={`h-[111%] -mx-3 -my-6 transition-opacity duration-150 ${
+        isActive === 1 ? "opacity-100" : "opacity-40"
+      }`}
+    >
       <ThemeProvider theme={darkTheme}>
         <LineChartPro
           xAxis={[
@@ -163,16 +167,14 @@ const DemoDeviceDataChart = ({ UIDParam, threshold, isActive }) => {
           grid={{ horizontal: true }}
           slotProps={{
             legend: {
-              itemMarkWidth: 20,
-              itemMarkHeight: 2,
-              markGap: 5,
-              itemGap: 10,
+              hidden: true,
             },
           }}
         />
       </ThemeProvider>
-      <div className="absolute top-[21px] w-full">
-        <div className="flex ml-6 gap-1">
+
+      <div className="absolute top-[35px] w-full">
+        <div className="flex ml-6 justify-center gap-1">
           <div className={`w-1 h-1 transition-all rounded-full bg-gray-600 ${isActive === 1 ? "dot" : ""}`}></div>
           <div className={`w-1 h-1 transition-all rounded-full bg-gray-600 ${isActive === 1 ? "dot" : ""}`}></div>
           <div className={`w-1 h-1 transition-all rounded-full bg-gray-600 ${isActive === 1 ? "dot" : ""}`}></div>
@@ -182,4 +184,4 @@ const DemoDeviceDataChart = ({ UIDParam, threshold, isActive }) => {
   );
 };
 
-export default DemoDeviceDataChart;
+export default DemoDeviceDataChartMobile;

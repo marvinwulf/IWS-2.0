@@ -16,7 +16,7 @@ const darkTheme = createTheme({
     mode: "dark",
     background: {
       default: "#121212",
-      paper: "#252134",
+      paper: "rgba(45,40,65,0.8)",
     },
     text: {
       primary: "#757185",
@@ -25,7 +25,7 @@ const darkTheme = createTheme({
   },
 });
 
-const PeriodDeviceDataChart = ({ UIDParam, threshold, days }) => {
+const PeriodDeviceDataChartMobile = ({ UIDParam, threshold, days }) => {
   const [xData, setXData] = useState([]);
   const [moistureSeries, setMoistureSeries] = useState([]);
   const [tankSeries, setTankSeries] = useState([]);
@@ -50,7 +50,7 @@ const PeriodDeviceDataChart = ({ UIDParam, threshold, days }) => {
     setXData(dates);
 
     axios
-      .get(`http://localhost:8080/datalog`, {
+      .get(`http://192.168.178.29:8080/datalog`, {
         params: { UID: UIDParam, startDate: new Date().toISOString().split("T")[0], limit: days },
       })
       .then((response) => {
@@ -94,7 +94,7 @@ const PeriodDeviceDataChart = ({ UIDParam, threshold, days }) => {
   }, [UIDParam]);
 
   return (
-    <div className="w-full h-full">
+    <div className="h-[105%] -mx-3 -my-6">
       <ThemeProvider theme={darkTheme}>
         <LineChartPro
           xAxis={[
@@ -175,10 +175,12 @@ const PeriodDeviceDataChart = ({ UIDParam, threshold, days }) => {
           grid={{ horizontal: true }}
           slotProps={{
             legend: {
-              itemMarkWidth: 20,
-              itemMarkHeight: 2,
-              markGap: 5,
-              itemGap: 10,
+              hidden: true,
+            },
+            tooltip: {
+              style: {
+                marginTop: "100px",
+              },
             },
           }}
         />
@@ -187,4 +189,4 @@ const PeriodDeviceDataChart = ({ UIDParam, threshold, days }) => {
   );
 };
 
-export default PeriodDeviceDataChart;
+export default PeriodDeviceDataChartMobile;

@@ -109,8 +109,9 @@ app.put("/devices/:uid", (req, res) => {
 
 // Route to fetch data log by UID
 app.get("/datalog", (req, res) => {
-  const { UID, startDate } = req.query;
+  const { UID, startDate, limit } = req.query;
 
+  // Check for missing UID
   if (!UID) {
     return res.status(400).json({ error: "Missing UID parameter." });
   }
@@ -118,11 +119,15 @@ app.get("/datalog", (req, res) => {
   try {
     const dateFilter = startDate ? new Date(startDate) : new Date();
 
+    // Check if the startDate is valid
     if (isNaN(dateFilter.getTime())) {
       return res.status(400).json({ error: "Invalid startDate format." });
     }
 
     const formattedDate = dateFilter.toISOString().split("T")[0];
+
+    // Validate and set the LIMIT parameter (default to 28 if not provided)
+    const limitValue = limit && !isNaN(limit) ? parseInt(limit) : 28;
 
     const stmt = db.prepare(`
       SELECT 
@@ -135,11 +140,13 @@ app.get("/datalog", (req, res) => {
       WHERE UID = ? AND DATE(timestamp) <= ?
       GROUP BY date
       ORDER BY date DESC
-      LIMIT 28
+      LIMIT ?
     `);
 
-    const rows = stmt.all(UID, formattedDate);
+    // Execute query with the limit parameter
+    const rows = stmt.all(UID, formattedDate, limitValue);
 
+    // If no data found
     if (rows.length === 0) {
       return res.status(404).json({ error: "No data found for this UID." });
     }

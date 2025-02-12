@@ -14,9 +14,40 @@ const DeviceMenuMaxLgUI = ({
 }) => {
   const [currentMobilePage, setCurrentMobilePage] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newName, setNewName] = useState(selectedDeviceData.name);
+
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    setNewName(selectedDeviceData.name); // Update name
+  }, [selectedDeviceData]);
+
+  useEffect(() => {
+    if (isModalOpen) {
+      setTimeout(() => inputRef.current?.focus(), 10);
+    }
+  }, [isModalOpen]);
+
+  const handleSave = () => {
+    handleNameChange(newName || "Unbenannt");
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setNewName(selectedDeviceData.name); // Reset name if canceled
+    setIsModalOpen(false);
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      handleSave();
+    } else if (event.key === "Escape") {
+      handleCancel();
+    }
+  };
 
   return (
-    <div>
+    <div className="flex flex-col h-full">
       {/* Mobile Only Top Bar */}
       <div
         id="top-bar-container"
@@ -46,9 +77,9 @@ const DeviceMenuMaxLgUI = ({
         </div>
       </div>
 
-      <div id="tab-bar" className="h-[40px] flex justify-center w-full pt-2 mb-6 max-w-[480px] mx-auto">
+      <div id="tab-bar" className="h-[40px] flex justify-center w-full my-2 max-w-[480px] mx-auto">
         <div
-          className={`flex w-1/2 justify-center items-center text-sm cursor-pointer hover-never:text-n-1 tr ${
+          className={`flex w-1/2 justify-center items-center text-sm cursor-pointer hover-never:text-n-1 tr p-4 ${
             currentMobilePage === 0 ? "text-n-2" : "text-n-4"
           }`}
           onClick={() => setCurrentMobilePage(0)}
@@ -59,7 +90,7 @@ const DeviceMenuMaxLgUI = ({
         <div className="bg-n-6 h-full w-0.25" />
 
         <div
-          className={`flex w-1/2 justify-center items-center text-sm cursor-pointer hover-never:text-n-1 tr ${
+          className={`flex w-1/2 justify-center items-center text-sm cursor-pointer hover-never:text-n-1 tr p-4 ${
             currentMobilePage === 1 ? "text-n-2" : "text-n-4"
           }`}
           onClick={() => setCurrentMobilePage(1)}
@@ -79,7 +110,39 @@ const DeviceMenuMaxLgUI = ({
         />
       )}
 
-      {currentMobilePage === 1 && <MaxLgDMPage1 />}
+      {currentMobilePage === 1 && (
+        <div className="flex-grow">
+          <MaxLgDMPage1 selectedDeviceData={selectedDeviceData} />
+        </div>
+      )}
+
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-n-7 p-4 rounded-lg shadow-lg w-[300px] border-n-6 border">
+            <h2 className="text-n-2 mb-2">Gerätenamen ändern</h2>
+            <input
+              type="text"
+              ref={inputRef}
+              value={newName}
+              onKeyDown={handleKeyDown}
+              onChange={(e) => setNewName(e.target.value)}
+              className="w-full p-2 border border-n-6 rounded-md bg-[#0e0c15] text-n-1 outline-none pb-[7px]"
+              maxLength={16}
+            />
+            <div className="flex justify-center mt-3 gap-2">
+              <button
+                className="px-3 py-1 bg-n-6 text-white rounded text-sm hover:bg-n-5 tr"
+                onClick={() => setIsModalOpen(false)}
+              >
+                Abbrechen
+              </button>
+              <button className="px-3 py-1 bg-n-5 text-white rounded text-sm hover:bg-n-4 tr" onClick={handleSave}>
+                Speichern
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

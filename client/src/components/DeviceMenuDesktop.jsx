@@ -59,7 +59,7 @@ const DeviceMenuMaxLgUI = ({
   const [newName, setNewName] = useState(selectedDeviceData.name);
   const [threshold, setThreshold] = useState(selectedDeviceData.threshold);
 
-  const [chartView, setChartView] = useState(2);
+  const [chartView, setChartView] = useState(0);
 
   const inputRef = useRef(null);
 
@@ -290,6 +290,7 @@ const DeviceMenuMaxLgUI = ({
               onKeyDown={handleKeyDown}
               onChange={(e) => setNewName(e.target.value)}
               className="w-full p-2 border border-n-6 rounded-md bg-[#0e0c15] text-n-1 outline-none pb-[7px]"
+              maxLength={16}
             />
             <div className="flex justify-center mt-3 gap-2">
               <button

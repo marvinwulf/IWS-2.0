@@ -43,45 +43,7 @@ const timeDelta = (sqlDatetime) => {
   }
 };
 
-const MaxLgDMPage0 = ({
-  selectedDeviceData,
-  handleSwitchChange,
-  handleFaderChange,
-  handleNameChange,
-  isModalOpen,
-  setIsModalOpen,
-}) => {
-  const [newName, setNewName] = useState(selectedDeviceData.name);
-
-  const inputRef = useRef(null);
-
-  useEffect(() => {
-    setNewName(selectedDeviceData.name); // Update name
-  }, [selectedDeviceData]);
-
-  useEffect(() => {
-    if (isModalOpen) {
-      setTimeout(() => inputRef.current?.focus(), 10);
-    }
-  }, [isModalOpen]);
-
-  const handleSave = () => {
-    handleNameChange(newName || "Unbenannt");
-    setIsModalOpen(false);
-  };
-
-  const handleCancel = () => {
-    setNewName(selectedDeviceData.name); // Reset name if canceled
-    setIsModalOpen(false);
-  };
-
-  const handleKeyDown = (event) => {
-    if (event.key === "Enter") {
-      handleSave();
-    } else if (event.key === "Escape") {
-      handleCancel();
-    }
-  };
+const MaxLgDMPage0 = ({ selectedDeviceData, handleSwitchChange, handleFaderChange }) => {
   return (
     <div>
       {/* Bottom Screen */}
@@ -108,7 +70,7 @@ const MaxLgDMPage0 = ({
                 <p className="text-sm text-n-1">Bodenfeuchte</p>
                 <input
                   type="text"
-                  value={(selectedDeviceData.soilMoisture || "-") + " %"}
+                  value={(selectedDeviceData.soilMoisture === null ? "-" : selectedDeviceData.soilMoisture) + " %"}
                   disabled={true}
                   className="w-16 border border-n-6 rounded-md text-center outline-none text-sm bg-[#0e0c15] text-n-1"
                 />
@@ -176,7 +138,7 @@ const MaxLgDMPage0 = ({
                 <p className="text-sm">Batterieladung</p>
                 <input
                   type="text"
-                  value={(selectedDeviceData.batLevel || "-") + " %"}
+                  value={(selectedDeviceData.batLevel === null ? "-" : selectedDeviceData.batLevel) + " %"}
                   disabled={true}
                   className="w-16 border border-n-6 rounded-md text-center outline-none text-sm bg-[#0e0c15] text-n-1"
                 />
@@ -201,32 +163,6 @@ const MaxLgDMPage0 = ({
           </div>
         </div>
       </div>
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-n-7 p-4 rounded-lg shadow-lg w-[300px] border-n-6 border">
-            <h2 className="text-n-2 mb-2">Gerätenamen ändern</h2>
-            <input
-              type="text"
-              ref={inputRef}
-              value={newName}
-              onKeyDown={handleKeyDown}
-              onChange={(e) => setNewName(e.target.value)}
-              className="w-full p-2 border border-n-6 rounded-md bg-[#0e0c15] text-n-1 outline-none pb-[7px]"
-            />
-            <div className="flex justify-center mt-3 gap-2">
-              <button
-                className="px-3 py-1 bg-n-6 text-white rounded text-sm hover:bg-n-5 tr"
-                onClick={() => setIsModalOpen(false)}
-              >
-                Abbrechen
-              </button>
-              <button className="px-3 py-1 bg-n-5 text-white rounded text-sm hover:bg-n-4 tr" onClick={handleSave}>
-                Speichern
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

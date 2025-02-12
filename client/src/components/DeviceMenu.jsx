@@ -104,7 +104,7 @@ const DeviceMenu = ({ selectedDeviceDataProp, isVisible, onClose, onUpdateDevice
             />
           </div>
 
-          <div className="block lg:hidden">
+          <div className="block lg:hidden flex-grow">
             <DeviceMenuMaxLgUI
               selectedDeviceData={selectedDeviceData}
               onClose={onClose}
