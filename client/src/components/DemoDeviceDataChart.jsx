@@ -4,6 +4,8 @@ import { LicenseInfo } from "@mui/x-license";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import axios from "axios";
 
+import SERVER_CONFIG from "../../../serverConfig";
+
 LicenseInfo.setLicenseKey(
   "e0d9bb8070ce0054c9d9ecb6e82cb58fTz0wLEU9MzI0NzIxNDQwMDAwMDAsUz1wcmVtaXVtLExNPXBlcnBldHVhbCxLVj0y"
 );
@@ -32,7 +34,7 @@ const DemoDeviceDataChart = ({ UIDParam, threshold, isActive }) => {
 
   const fetchLatestData = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/datalogRolling?UID=${UIDParam}`);
+      const response = await axios.get(`${SERVER_CONFIG.API_URL}/datalogRolling?UID=${UIDParam}`);
 
       // Add data to series only if isActive is 1, otherwise add null
       setMoistureSeries((prevData) => [...prevData, isActive === 1 ? response.data.soilMoisture : null]);

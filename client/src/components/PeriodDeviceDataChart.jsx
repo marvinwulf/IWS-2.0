@@ -7,6 +7,8 @@ import axios from "axios";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
+import SERVER_CONFIG from "../../../serverConfig";
+
 LicenseInfo.setLicenseKey(
   "e0d9bb8070ce0054c9d9ecb6e82cb58fTz0wLEU9MzI0NzIxNDQwMDAwMDAsUz1wcmVtaXVtLExNPXBlcnBldHVhbCxLVj0y"
 );
@@ -50,7 +52,7 @@ const PeriodDeviceDataChart = ({ UIDParam, threshold, days }) => {
     setXData(dates);
 
     axios
-      .get(`http://localhost:8080/datalog`, {
+      .get(`${SERVER_CONFIG.API_URL}/datalog`, {
         params: { UID: UIDParam, startDate: new Date().toISOString().split("T")[0], limit: days },
       })
       .then((response) => {
