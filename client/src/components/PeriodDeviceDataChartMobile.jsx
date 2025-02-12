@@ -4,6 +4,8 @@ import { LicenseInfo } from "@mui/x-license";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import axios from "axios";
 
+import SERVER_CONFIG from "../../../serverConfig";
+
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
@@ -50,7 +52,7 @@ const PeriodDeviceDataChartMobile = ({ UIDParam, threshold, days }) => {
     setXData(dates);
 
     axios
-      .get(`http://192.168.178.29:8080/datalog`, {
+      .get(`${SERVER_CONFIG.API_URL}/datalog`, {
         params: { UID: UIDParam, startDate: new Date().toISOString().split("T")[0], limit: days },
       })
       .then((response) => {

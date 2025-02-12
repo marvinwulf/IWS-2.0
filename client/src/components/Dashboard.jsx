@@ -3,6 +3,8 @@ import catmascot from "../assets/cat-mascot-void.svg";
 import DeviceCard from "./DeviceCard";
 import DeviceMenu from "./DeviceMenu";
 
+import SERVER_CONFIG from "../../../serverConfig";
+
 import { useState, useEffect, useRef } from "react";
 
 import axios from "axios";
@@ -10,7 +12,7 @@ import axios from "axios";
 import Icon from "@mdi/react";
 import { mdiChevronDown, mdiReload } from "@mdi/js";
 
-const ws = new WebSocket("ws://192.168.178.29:8080");
+const ws = new WebSocket(SERVER_CONFIG.WEBSOCKET_URL);
 
 const setCookie = (name, value, days = 365) => {
   const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
@@ -37,7 +39,7 @@ const Dashboard = () => {
   const ws = useRef(null);
 
   useEffect(() => {
-    ws.current = new WebSocket("ws://192.168.178.29:8080");
+    ws.current = new WebSocket(SERVER_CONFIG.WEBSOCKET_URL);
 
     ws.current.onopen = () => {
       console.log("WebSocket connection established.");

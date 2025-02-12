@@ -3,6 +3,8 @@ import axios from "axios";
 import DeviceMenuLgUI from "./DeviceMenuDesktop";
 import DeviceMenuMaxLgUI from "./DeviceMenuMobile";
 
+import SERVER_CONFIG from "../../../serverConfig";
+
 const DeviceMenu = ({ selectedDeviceDataProp, isVisible, onClose, onUpdateDevice, onError }) => {
   const [selectedDeviceData, setSelectedDeviceData] = useState(selectedDeviceDataProp);
   const [prevData, setPrevData] = useState(null);
@@ -43,7 +45,7 @@ const DeviceMenu = ({ selectedDeviceDataProp, isVisible, onClose, onUpdateDevice
 
   const pushDeviceData = async (updatedData) => {
     try {
-      const response = await axios.put(`http://192.168.178.29:8080/devices/${updatedData.UID}`, {
+      const response = await axios.put(`${SERVER_CONFIG.API_URL}/devices/${updatedData.UID}`, {
         name: updatedData.name,
         isActive: updatedData.isActive,
         threshold: updatedData.threshold,
