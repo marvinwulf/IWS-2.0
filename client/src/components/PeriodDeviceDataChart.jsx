@@ -25,14 +25,12 @@ const darkTheme = createTheme({
   },
 });
 
-const PeriodDeviceDataChart = ({ UIDParam, threshold }) => {
+const PeriodDeviceDataChart = ({ UIDParam, threshold, days }) => {
   const [xData, setXData] = useState([]);
   const [moistureSeries, setMoistureSeries] = useState([]);
   const [tankSeries, setTankSeries] = useState([]);
   const [batterySeries, setBatterySeries] = useState([]);
   const [pumpSeries, setPumpSeries] = useState([]);
-
-  const [days, setDays] = useState([28]);
 
   const generateDateRange = () => {
     const dates = [];

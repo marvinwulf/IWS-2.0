@@ -54,6 +54,16 @@ const Dashboard = () => {
       }
     };
 
+    // ws.current.onerror = (error) => {
+    //   console.error("WebSocket error:", error);
+    //   addAlert("WebSocket-Verbindung fehlgeschlagen. Server überprüfen.");
+    // };
+
+    // ws.current.onclose = () => {
+    //   console.log("WebSocket connection closed.");
+    //   addAlert("WebSocket-Verbindung getrennt. Seite neu laden.");
+    // };
+
     // Cleanup WebSocket on component unmount
     return () => {
       if (ws.current) {
@@ -128,7 +138,7 @@ const Dashboard = () => {
             size={1}
             rotate={isCollapsed ? 180 : 0}
             path={mdiChevronDown}
-            className="absolute left-2 -top-0.5 text-n-9 cursor-pointer hover:bg-n-6 rounded-md z-2"
+            className="absolute left-2 -top-0.5 text-n-9 cursor-pointer hover-never:bg-n-6 rounded-md z-2"
             onClick={() => toggleSection(key)}
           />
           <span className="relative text-n-9 font-300 bg-[#0e0c15] text-sm pl-9 pr-2 select-none z-1">
@@ -278,7 +288,7 @@ const Dashboard = () => {
                 )}
 
                 <button
-                  className="absolute top-[15px] right-4 text-n-4 hover:text-white"
+                  className="absolute top-[15px] right-4 text-n-4 hover-never:text-white"
                   onClick={() => closeAlert(alert.id)}
                 >
                   ✕

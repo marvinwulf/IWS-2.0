@@ -16,6 +16,7 @@ const Fader = ({
 }) => {
   const [value, setValue] = useState(initialValue);
   const sliderRef = useRef(null);
+  const isDragging = useRef(false);
 
   // Update internal state when initialValue changes
   useEffect(() => {
@@ -32,28 +33,66 @@ const Fader = ({
     }
   };
 
-  const handleMouseMove = (e) => {
-    if (!sliderRef.current) return;
+  const handleMove = (clientX) => {
+    if (!sliderRef.current || !isDragging.current) return;
     const rect = sliderRef.current.getBoundingClientRect();
-    let newValue = ((e.clientX - rect.left) / rect.width) * (maxValue - minValue) + minValue;
+    let newValue = ((clientX - rect.left) / rect.width) * (maxValue - minValue) + minValue;
 
     updateValue(newValue);
   };
 
+  const handleMouseMove = (e) => {
+    handleMove(e.clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    // Prevent default behavior to stop page scrolling
+    e.preventDefault();
+    handleMove(e.touches[0].clientX);
+  };
+
   const handleMouseDown = () => {
+    isDragging.current = true;
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
   };
 
+  const handleTouchStart = (e) => {
+    isDragging.current = true;
+    document.addEventListener("touchmove", handleTouchMove, { passive: false }); // Set passive: false to allow preventDefault
+    document.addEventListener("touchend", handleTouchEnd);
+  };
+
   const handleMouseUp = () => {
+    isDragging.current = false;
     document.removeEventListener("mousemove", handleMouseMove);
     document.removeEventListener("mouseup", handleMouseUp);
+  };
+
+  const handleTouchEnd = () => {
+    isDragging.current = false;
+    document.removeEventListener("touchmove", handleTouchMove);
+    document.removeEventListener("touchend", handleTouchEnd);
   };
 
   const handleClick = (e) => {
     if (!sliderRef.current) return;
     const rect = sliderRef.current.getBoundingClientRect();
     let newValue = ((e.clientX - rect.left) / rect.width) * (maxValue - minValue) + minValue;
+
+    // Snap to `lockThreshold` if it exceeds
+    if (lockThreshold !== undefined && newValue > lockThreshold) {
+      newValue = lockThreshold;
+    }
+
+    updateValue(newValue);
+    onFaderChange(deviceDataItem, Math.round(newValue));
+  };
+
+  const handleTouchClick = (e) => {
+    if (!sliderRef.current) return;
+    const rect = sliderRef.current.getBoundingClientRect();
+    let newValue = ((e.touches[0].clientX - rect.left) / rect.width) * (maxValue - minValue) + minValue;
 
     // Snap to `lockThreshold` if it exceeds
     if (lockThreshold !== undefined && newValue > lockThreshold) {
@@ -77,7 +116,9 @@ const Fader = ({
         ref={sliderRef}
         className="relative w-full h-2.5 cursor-pointer"
         onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
         onClick={handleClick}
+        onTouchEnd={handleTouchClick}
       >
         <div
           className={`absolute top-0 left-0 h-full ${fgColor} rounded-l-full`}
@@ -91,7 +132,7 @@ const Fader = ({
         />
         <div className="relative mx-[5px]">
           <div
-            className={`absolute top-[5px] left-0 aspect-square h-4 rounded-full border-n-7 border-2 ${dotColor} transform -translate-x-1/2 -translate-y-1/2`}
+            className={`absolute top-[5px] left-0 aspect-square h-4 w-4 rounded-full border-n-7 border-2 ${dotColor} transform -translate-x-1/2 -translate-y-1/2`}
             style={{ left: `${((value - minValue) / (maxValue - minValue)) * 100}%` }}
           />
         </div>

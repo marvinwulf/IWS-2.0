@@ -59,14 +59,14 @@ const DeviceCard = ({ device, onClick }) => {
         case batLevel <= 5:
           return `text-red-600 blink`;
         default:
-          return `text-n-5 hover:opacity-70 tr`;
+          return `text-n-5 hover-never:opacity-70 tr`;
       }
     }
   };
 
   return (
     <div
-      className="w-38 lg:w-56 flex-col border border-n-6 rounded-md overflow-hidden cursor-pointer shadow-lg hover:scale-105 tr"
+      className="w-38 lg:w-56 flex-col border border-n-6 rounded-md overflow-hidden cursor-pointer shadow-lg hover-never:scale-105 tr"
       onClick={onClick}
     >
       <div className="border-b border-n-6 bg-n-7 h-[48px]">
@@ -102,9 +102,13 @@ const DeviceCard = ({ device, onClick }) => {
       </div>
 
       <div className="flex my-[15px] mx-3 lg:mx-4 gap-0.5 h-2 lg:pr-8 mr-10">
-        <div className={`hover:opacity-80 tr w-[33%] rounded-l-md ${getWlIndicatorColors(device.tankLevel, 0)}`}></div>
-        <div className={`hover:opacity-80 tr w-[33%] ${getWlIndicatorColors(device.tankLevel, 1)}`}></div>
-        <div className={`hover:opacity-80 tr w-[33%] rounded-r-md ${getWlIndicatorColors(device.tankLevel, 2)}`}></div>
+        <div
+          className={`hover-never:opacity-80 tr w-[33%] rounded-l-md ${getWlIndicatorColors(device.tankLevel, 0)}`}
+        ></div>
+        <div className={`hover-never:opacity-80 tr w-[33%] ${getWlIndicatorColors(device.tankLevel, 1)}`}></div>
+        <div
+          className={`hover-never:opacity-80 tr w-[33%] rounded-r-md ${getWlIndicatorColors(device.tankLevel, 2)}`}
+        ></div>
       </div>
     </div>
   );

@@ -154,7 +154,6 @@ app.get("/datalog", (req, res) => {
 
 app.get("/datalogRolling", (req, res) => {
   const { UID } = req.query;
-  console.log("Received UID:", UID); // Log the UID received
 
   if (!UID) {
     return res.status(400).json({ error: "Missing UID parameter." });

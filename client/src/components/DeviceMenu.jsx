@@ -96,7 +96,7 @@ const DeviceMenu = ({ selectedDeviceDataProp, isVisible, onClose, onUpdateDevice
         >
           <div className="hidden lg:block flex-grow">
             <DeviceMenuLgUI
-              deviceData={selectedDeviceData}
+              selectedDeviceData={selectedDeviceData}
               onClose={onClose}
               handleFaderChange={handleFaderChange}
               handleSwitchChange={handleSwitchChange}
@@ -106,7 +106,7 @@ const DeviceMenu = ({ selectedDeviceDataProp, isVisible, onClose, onUpdateDevice
 
           <div className="block lg:hidden">
             <DeviceMenuMaxLgUI
-              deviceData={selectedDeviceData}
+              selectedDeviceData={selectedDeviceData}
               onClose={onClose}
               handleFaderChange={handleFaderChange}
               handleSwitchChange={handleSwitchChange}

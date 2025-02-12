@@ -22,7 +22,7 @@ const darkTheme = createTheme({
   },
 });
 
-const DemoDeviceDataChart = ({ UIDParam, threshold }) => {
+const DemoDeviceDataChart = ({ UIDParam, threshold, isActive }) => {
   const [moistureSeries, setMoistureSeries] = useState([]);
   const [batterySeries, setBatterySeries] = useState([]);
   const [tankSeries, setTankSeries] = useState([]);
@@ -33,10 +33,12 @@ const DemoDeviceDataChart = ({ UIDParam, threshold }) => {
   const fetchLatestData = async () => {
     try {
       const response = await axios.get(`http://localhost:8080/datalogRolling?UID=${UIDParam}`);
-      setMoistureSeries((prevData) => [...prevData, response.data.soilMoisture]);
-      setBatterySeries((prevData) => [...prevData, response.data.batLevel]);
-      setTankSeries((prevData) => [...prevData, response.data.tankLevel]);
-      setPumpSeries((prevData) => [...prevData, response.data.pumpActive === 1 ? 100 : null]);
+
+      // Add data to series only if isActive is 1, otherwise add null
+      setMoistureSeries((prevData) => [...prevData, isActive === 1 ? response.data.soilMoisture : null]);
+      setBatterySeries((prevData) => [...prevData, isActive === 1 ? response.data.batLevel : null]);
+      setTankSeries((prevData) => [...prevData, isActive === 1 ? response.data.tankLevel : null]);
+      setPumpSeries((prevData) => [...prevData, isActive === 1 ? (response.data.pumpActive === 1 ? 100 : null) : null]);
 
       console.log(response.data);
     } catch (err) {
@@ -67,7 +69,7 @@ const DemoDeviceDataChart = ({ UIDParam, threshold }) => {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [UIDParam]);
+  }, [UIDParam, isActive]);
 
   useEffect(() => {
     if (moistureSeries.length > 23) {
@@ -92,7 +94,7 @@ const DemoDeviceDataChart = ({ UIDParam, threshold }) => {
   };
 
   return (
-    <div className="w-full h-full">
+    <div className={`w-full h-full transition-opacity duration-150 ${isActive === 1 ? "opacity-100" : "opacity-40"}`}>
       <ThemeProvider theme={darkTheme}>
         <LineChartPro
           xAxis={[
@@ -120,25 +122,25 @@ const DemoDeviceDataChart = ({ UIDParam, threshold }) => {
           series={[
             {
               showMark: false,
-              label: "Bodenfeuchte", // Soil Moisture
+              label: "Bodenfeuchte",
               data: moistureSeries,
-              connectNulls: true, // Ensures gaps are not skipped
+              connectNulls: false,
               valueFormatter: (value) => `${value !== null ? value + "%" : ""}`,
             },
             {
               showMark: false,
-              label: "Wasserstand", // Soil Moisture
+              label: "Wasserstand",
               data: tankSeries,
               yAxisId: "tankLevelAxis",
-              connectNulls: true, // Ensures gaps are not skipped
+              connectNulls: false,
               valueFormatter: (value) =>
                 value !== null ? (value === 2 ? "Voll" : value === 1 ? "Halbvoll" : "Leer") : "",
             },
             {
               showMark: false,
-              label: "Batterieladung", // Soil Moisture
+              label: "Batterieladung",
               data: batterySeries,
-              connectNulls: true, // Ensures gaps are not skipped
+              connectNulls: false,
               valueFormatter: (value) => `${value !== null ? value + "%" : ""}`,
             },
             {
@@ -159,6 +161,14 @@ const DemoDeviceDataChart = ({ UIDParam, threshold }) => {
             },
           ]}
           grid={{ horizontal: true }}
+          slotProps={{
+            legend: {
+              itemMarkWidth: 20,
+              itemMarkHeight: 2,
+              markGap: 5,
+              itemGap: 10,
+            },
+          }}
         />
       </ThemeProvider>
     </div>
